@@ -1,0 +1,64 @@
+[project]
+name = "radassist-backend"
+version = "0.1.0"
+description = "RadAssist API: AI-assisted X-ray triage backend"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "pydantic-settings>=2.15.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+# ---------- Ruff: linter + formatter ----------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle: style errors and warnings
+    "F",        # pyflakes: unused imports, undefined names
+    "I",        # isort: import ordering
+    "B",        # flake8-bugbear: likely bugs
+    "UP",       # pyupgrade: modern Python syntax
+    "N",        # pep8-naming: naming conventions
+    "S",        # flake8-bandit: security issues
+    "C4",       # flake8-comprehensions: cleaner comprehensions
+    "SIM",      # flake8-simplify: simpler code
+    "G",        # flake8-logging-format: no f-strings in log calls
+    "RUF",      # Ruff-specific rules
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]  # `assert` is expected in tests
+
+# ---------- mypy: static type checking ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+# ---------- pytest ----------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+
+# ---------- coverage ----------
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.3.1",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.9",
+]
