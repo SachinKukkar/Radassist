@@ -1,0 +1,38 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- ML artifacts (weights are published via GitHub Releases, never committed) ---
+/data/
+ml/data/
+ml/artifacts/
+mlruns/
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
+# --- Node (frontend, Step 10) ---
+node_modules/
+
+# --- Editors & OS ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
