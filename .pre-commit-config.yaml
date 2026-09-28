@@ -10,11 +10,15 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-merge-conflict
-      - id: check-added-large-files   # stops you accidentally committing model weights
+      - id: check-added-large-files
         args: [--maxkb=1000]
       - id: detect-private-key
 
-  # Ruff and mypy run through uv, so they use the exact versions pinned in uv.lock
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.15.1
+    hooks:
+      - id: hadolint-docker
+
   - repo: local
     hooks:
       - id: ruff-check

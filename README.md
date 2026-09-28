@@ -15,72 +15,95 @@ AI-assisted X-ray triage platform. Upload chest and musculoskeletal radiographs,
 | Area | Tools |
 |---|---|
 | Backend | Python 3.12, FastAPI, Pydantic, Uvicorn |
-| Quality | Ruff (lint + format), mypy (strict), pytest, coverage |
+| Data services | PostgreSQL 18, Redis 8, SeaweedFS (S3-compatible) |
+| Clients | psycopg 3, redis-py, boto3 |
+| Containers | Docker (multi-stage, non-root), Docker Compose |
+| Quality | Ruff, mypy (strict), pytest (unit + integration), coverage, hadolint |
 | Workflow | uv, pre-commit, GitHub Actions, Dependabot |
-| Planned | PostgreSQL, Redis, Celery, MinIO/S3, ONNX Runtime, React + TypeScript, Docker, Prometheus, Grafana |
+| Planned | SQLAlchemy, Celery, ONNX Runtime, React + TypeScript, Prometheus, Grafana |
 
-## Quick start
+## Quick start (Docker, recommended)
 
-**Prerequisites:** [uv](https://docs.astral.sh/uv/), `git`, `make`
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/) with Compose, `git`, `make`
 
 ```bash
 git clone https://github.com/<your-username>/radassist.git
 cd radassist
-cp backend/.env.example backend/.env
-make install
-make run
+make up
 ```
 
 Then open:
 
 - http://127.0.0.1:8000/docs for interactive API docs
-- http://127.0.0.1:8000/health/live for the liveness check
+- http://127.0.0.1:8000/health/ready for the readiness check (all dependencies should be `ok`)
+
+Stop with `make down`. Your data is kept in Docker volumes; `make reset` deletes it.
+
+## Local development (API on your laptop)
+
+**Extra prerequisite:** [uv](https://docs.astral.sh/uv/)
+
+```bash
+cp backend/.env.example backend/.env
+make install        # dependencies + git hooks
+make deps           # start db, redis and storage in Docker
+make run            # API with auto-reload on http://127.0.0.1:8000
+```
+
+## Services
+
+| Service | Image | Host address | Purpose |
+|---|---|---|---|
+| `api` | built from `backend/Dockerfile` | http://127.0.0.1:8000 | FastAPI application |
+| `db` | `postgres:18` | 127.0.0.1:5432 | Relational database |
+| `redis` | `redis:8.8-alpine` | 127.0.0.1:6379 | Cache and task queue broker |
+| `storage` | `chrislusf/seaweedfs:4.47` | http://127.0.0.1:8333 | S3-compatible object storage |
+
+All ports bind to `127.0.0.1` only. The credentials are for local development only.
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `make install` | Install dependencies and git hooks |
-| `make run` | Start the API with auto-reload |
-| `make check` | Lint, type-check and test (same as CI) |
-| `make format` | Auto-format and fix lint issues |
-| `make hooks` | Run all pre-commit hooks on every file |
+| `make up` / `make down` | Start / stop the full stack in Docker |
+| `make deps` | Start only the dependencies |
+| `make run` | Run the API locally with auto-reload |
+| `make check` | Lint, type-check and unit tests (as in CI) |
+| `make test-integration` | Integration tests against the running services |
+| `make logs` / `make ps` | Follow logs / show container health |
+| `make reset` | Stop and **delete** all local data |
+
+Run `make` to see every command.
 
 ## Configuration
 
-All settings are environment variables prefixed with `RADASSIST_`. See [`backend/.env.example`](backend/.env.example).
+The API reads environment variables prefixed with `RADASSIST_`. See [`backend/.env.example`](backend/.env.example) for the full list.
+Docker Compose accepts optional overrides in a root `.env` file. See [`.env.example`](.env.example).
 
-| Variable | Default | Description |
+With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
+
+## Health checks
+
+| Endpoint | Meaning | Used by |
 |---|---|---|
-| `RADASSIST_ENVIRONMENT` | `development` | `development`, `test` or `production` |
-| `RADASSIST_DEBUG` | `false` | FastAPI debug mode (never in production) |
-| `RADASSIST_LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING` or `ERROR` |
-| `RADASSIST_LOG_JSON` | `false` | JSON log lines (use in production) |
+| `GET /health/live` | The process is running | Docker `HEALTHCHECK` |
+| `GET /health/ready` | Database, Redis and object storage are reachable (200), otherwise 503 | Load balancers, CI |
 
-## Project structure
+## Architecture decisions
 
-```
-backend/
-  app/
-    api/routes/   HTTP endpoints
-    core/         configuration and logging
-    schemas/      request/response models
-    main.py       application factory
-  tests/          automated tests
-.github/          CI workflow, Dependabot, PR template
-```
+Significant decisions are recorded in [`docs/adr/`](docs/adr/README.md).
 
 ## Development workflow
 
 1. Create a branch from an up-to-date `main`: `git switch -c feat/<name>`
 2. Commit using [Conventional Commits](https://www.conventionalcommits.org/)
-3. Push and open a pull request. CI must pass before merging.
+3. Push and open a pull request. Both CI jobs must pass.
 4. Squash-merge, then `git switch main && git pull`
 
 ## Roadmap
 
 - [x] 1. Project skeleton, tooling, CI
-- [ ] 2. Docker & local infrastructure
+- [x] 2. Docker & local infrastructure
 - [ ] 3. Datasets & preprocessing
 - [ ] 4. Training pipeline with MLflow
 - [ ] 5. Inference package (ONNX, heatmaps, DICOM)
