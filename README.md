@@ -26,6 +26,9 @@ AI-assisted X-ray triage platform. Upload chest and musculoskeletal radiographs,
 
 ## Quick start (Docker, recommended)
 
+
+## Quick start (Docker, recommended)
+
 **Prerequisites:** [Docker](https://docs.docker.com/get-docker/) with Compose, `git`, `make`
 
 ```bash
@@ -90,6 +93,11 @@ Run `make` to see every command.
 
 The API reads environment variables prefixed with `RADASSIST_`. See [`backend/.env.example`](backend/.env.example) for the full list.
 Docker Compose accepts optional overrides in a root `.env` file. See [`.env.example`](.env.example).
+
+With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
+
+## Health checks
+
 
 With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
 

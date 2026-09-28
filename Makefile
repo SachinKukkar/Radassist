@@ -5,6 +5,7 @@ ML := ml
 .PHONY: help install format check hooks
 .PHONY: lint typecheck test run
 .PHONY: ml-lint ml-typecheck ml-test ml-check
+.PHONY: help install lint format typecheck test check run hooks
 .PHONY: up deps down reset logs ps test-integration
 
 help: ## Show available commands
@@ -12,6 +13,8 @@ help: ## Show available commands
 
 # ---------- Everyday ----------
 install: ## Install backend and ml dependencies, and git hooks
+# ---------- Local development (no Docker needed) ----------
+install: ## Install backend dependencies and git hooks
 	cd $(BACKEND) && uv sync
 	cd $(ML) && uv sync
 	cd $(BACKEND) && uv run pre-commit install
@@ -49,6 +52,16 @@ ml-test: ## ML: run tests with coverage
 	cd $(ML) && uv run pytest --cov=radassist_ml --cov-report=term-missing
 
 ml-check: ml-lint ml-typecheck ml-test ## ML: run everything the ml CI job runs
+test: ## Run unit tests with coverage
+	cd $(BACKEND) && uv run pytest --cov=app --cov-report=term-missing
+
+check: lint typecheck test ## Run everything the backend CI job runs
+
+run: ## Start the API on your laptop with auto-reload (use `make deps` first)
+	cd $(BACKEND) && uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+hooks: ## Run all pre-commit hooks on every file
+	cd $(BACKEND) && uv run pre-commit run --all-files
 
 # ---------- Docker ----------
 up: ## Build and start the full stack (API + dependencies)
