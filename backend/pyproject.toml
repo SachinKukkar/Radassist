@@ -4,8 +4,11 @@ version = "0.1.0"
 description = "RadAssist API: AI-assisted X-ray triage backend"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "boto3>=1.43.103",
     "fastapi>=0.141.1",
+    "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.15.0",
+    "redis>=8.1.0",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -30,7 +33,11 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]  # `assert` is expected in tests
+"tests/**" = [
+    "S101",  # `assert` is expected in tests
+    "S105",  # fake secrets in test data
+    "S106",  # fake secrets passed as arguments in tests
+]
 
 # ---------- mypy: static type checking ----------
 [tool.mypy]
@@ -42,7 +49,11 @@ plugins = ["pydantic.mypy"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not integration'"
+markers = [
+    "integration: needs the Docker Compose services running (make up or make deps)",
+]
+
 
 # ---------- coverage ----------
 [tool.coverage.run]
@@ -52,9 +63,14 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 fail_under = 80
+exclude_also = [
+    'if __name__ == "__main__":',
+]
+
 
 [dependency-groups]
 dev = [
+    "boto3-stubs[s3]>=1.43.103",
     "httpx>=0.28.1",
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
