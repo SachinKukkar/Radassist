@@ -37,7 +37,7 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY app ./app
 
-USER app
+USER 10001:10001
 
 EXPOSE 8000
 
