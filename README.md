@@ -98,6 +98,11 @@ With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the devel
 
 ## Health checks
 
+
+With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
+
+## Health checks
+
 | Endpoint | Meaning | Used by |
 |---|---|---|
 | `GET /health/live` | The process is running | Docker `HEALTHCHECK` |
