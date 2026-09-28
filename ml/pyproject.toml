@@ -31,7 +31,7 @@ select = ["E", "W", "F", "I", "B", "UP", "N", "S", "C4", "SIM", "G", "RUF"]
 
 # ---------- mypy ----------
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 
 # ---------- pytest ----------

@@ -51,3 +51,83 @@ jobs:
 
       - name: Tests with coverage gate
         run: uv run pytest --cov=app --cov-report=term-missing
+
+  docker:
+    name: docker-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint Dockerfile
+        run: docker run --rm -i hadolint/hadolint:v2.15.1 < backend/Dockerfile
+
+      - name: Build and start the stack
+        run: docker compose up --build --detach --wait --wait-timeout 180
+
+      - name: Check readiness (all dependencies reachable)
+        run: >-
+          curl --fail --silent --show-error
+          --retry 10 --retry-delay 3 --retry-all-errors
+          http://127.0.0.1:8000/health/ready
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          enable-cache: true
+          working-directory: backend
+
+      - name: Run integration tests
+        working-directory: backend
+        run: |
+          uv python install
+          uv sync --locked
+          uv run pytest -m integration
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --volumes
+
+  ml:
+    name: ml-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ml
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          enable-cache: true
+          working-directory: ml
+
+      - name: Install Python (from .python-version)
+        run: uv python install
+
+      - name: Install dependencies (fail if uv.lock is outdated)
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      - name: Type check
+        run: uv run mypy src
+
+      - name: Tests with coverage gate
+        run: uv run pytest --cov=radassist_ml --cov-report=term-missing

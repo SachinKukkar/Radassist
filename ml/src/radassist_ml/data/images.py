@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import pydicom
 from PIL import Image
-from pydicom.pixels import apply_modality_lut, apply_voi_lut
+from pydicom.pixels.processing import apply_modality_lut, apply_voi_lut
 
 DICOM_SUFFIXES: Final = frozenset({".dcm", ".dicom"})
 HIGH_BIT_DEPTH_MODES: Final = frozenset({"I", "I;16", "I;16B", "I;16L", "F"})
