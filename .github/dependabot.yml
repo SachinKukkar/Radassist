@@ -7,6 +7,16 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+  - package-ecosystem: "uv"
+    directory: "/ml"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      ml-dependencies:
+        patterns: ["*"]
+
 
   - package-ecosystem: "uv"
     directory: "/backend"
@@ -17,6 +27,7 @@ updates:
     groups:
       python-dependencies:
         patterns: ["*"]
+
   - package-ecosystem: "docker"
     directory: "/backend"
     schedule:

@@ -21,6 +21,11 @@ AI-assisted X-ray triage platform. Upload chest and musculoskeletal radiographs,
 | Quality | Ruff, mypy (strict), pytest (unit + integration), coverage, hadolint |
 | Workflow | uv, pre-commit, GitHub Actions, Dependabot |
 | Planned | SQLAlchemy, Celery, ONNX Runtime, React + TypeScript, Prometheus, Grafana |
+| ML data | numpy, Pillow, pydicom, click |
+
+
+## Quick start (Docker, recommended)
+
 
 ## Quick start (Docker, recommended)
 
@@ -40,6 +45,13 @@ Then open:
 Stop with `make down`. Your data is kept in Docker volumes; `make reset` deletes it.
 
 ## Local development (API on your laptop)
+
+## ML data pipeline
+
+The `ml/` package (`radassist-ml`) turns the raw datasets into validated manifests with
+patient-level splits and preprocessed images. See [`ml/README.md`](ml/README.md) and the
+[dataset cards](docs/datasets/README.md). Datasets are licensed and are never committed.
+
 
 **Extra prerequisite:** [uv](https://docs.astral.sh/uv/)
 
@@ -72,6 +84,8 @@ All ports bind to `127.0.0.1` only. The credentials are for local development on
 | `make test-integration` | Integration tests against the running services |
 | `make logs` / `make ps` | Follow logs / show container health |
 | `make reset` | Stop and **delete** all local data |
+| `make ml-check` | ML lint, type-check and tests |
+
 
 Run `make` to see every command.
 
@@ -79,6 +93,11 @@ Run `make` to see every command.
 
 The API reads environment variables prefixed with `RADASSIST_`. See [`backend/.env.example`](backend/.env.example) for the full list.
 Docker Compose accepts optional overrides in a root `.env` file. See [`.env.example`](.env.example).
+
+With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
+
+## Health checks
+
 
 With `RADASSIST_ENVIRONMENT=production`, the API refuses to start with the development credentials.
 
