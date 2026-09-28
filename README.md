@@ -26,6 +26,9 @@ AI-assisted X-ray triage platform. Upload chest and musculoskeletal radiographs,
 
 ## Quick start (Docker, recommended)
 
+
+## Quick start (Docker, recommended)
+
 **Prerequisites:** [Docker](https://docs.docker.com/get-docker/) with Compose, `git`, `make`
 
 ```bash
