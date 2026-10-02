@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
 
   storage:
-    image: chrislusf/seaweedfs:4.47
+    image: chrislusf/seaweedfs:4.48
     command: ["mini", "-dir=/data"]
     environment:
       # SeaweedFS reads these to create the S3 credentials and pre-create the bucket
