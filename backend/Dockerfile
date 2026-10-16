@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ============ Stage 1: builder - install dependencies into a virtual environment ============
-FROM python:3.12-slim-trixie AS builder
+FROM python:3.14-slim-trixie AS builder
 
 # Copy the uv binaries from the official uv image (pinned to the same version as your laptop)
 COPY --from=ghcr.io/astral-sh/uv:0.12.18 /uv /uvx /bin/
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 # ============ Stage 2: runtime - small final image without uv or build caches ============
-FROM python:3.12-slim-trixie AS runtime
+FROM python:3.14-slim-trixie AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
